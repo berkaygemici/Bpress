@@ -4,15 +4,17 @@ import { getOpenAIClient } from "@/services/openai";
 
 const Input = z.object({
   topic: z.string().min(1),
+  subject: z.string().optional(),
+  contentPrompt: z.string().optional(),
 });
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { topic } = Input.parse(body);
+    const { topic, subject, contentPrompt } = Input.parse(body);
 
-    const system = "You are an expert swim coach and SEO editor. You will: (1) pick a marketable niche subtopic under the given Topic (not too broad, not ultra-niche), (2) write a high-quality article, (3) provide ONE image prompt describing a strong header/cover image for the article. Output STRICT JSON with keys ONLY: title, meta_description, tags (array), content (HTML with exactly one H1 and multiple H2/H3; short paragraphs and lists), imageText (string). No extra text.";
-    const user = `Topic: ${topic}\nAudience: adult swimmers (beginners to intermediate), triathletes, and masters.\nConstraints: 1200-1600 words; actionable drills/workouts; safety notes; avoid fluff; E-E-A-T; no medical claims.`;
+    const system = "You are an expert swim coach and SEO editor. Write a high-quality article for the provided Subject under the main Topic, then provide ONE header image description. Output STRICT JSON: title, meta_description, tags (array), content (HTML with exactly one H1 and multiple H2/H3; short paragraphs and lists), imageText (string). No extra text.";
+    const user = `Topic: ${topic}\nSubject: ${subject || "(derive a good subject)"}\nContentPrompt: ${contentPrompt || "(derive a strong prompt factoring uniqueness and marketability)"}\nAudience: adult swimmers (beginners to intermediate), triathletes, and masters.\nConstraints: 1200-1600 words; actionable drills/workouts; safety notes; avoid fluff; E-E-A-T; no medical claims.`;
 
     const openai = getOpenAIClient();
     const chat = await openai.chat.completions.create({

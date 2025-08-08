@@ -65,10 +65,20 @@ export default function AdminPostsPage() {
         | undefined;
       const topic = settings?.topic ?? "Swimming";
 
-      const res = await fetch("/api/generate-content", {
+      // 1) Ask for a unique subject + content prompt first
+      const subjectRes = await fetch("/api/subject-finder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic }),
+      });
+      if (!subjectRes.ok) throw new Error("Failed to find subject");
+      const subjectData = (await subjectRes.json()) as { subject: string; contentPrompt: string };
+
+      // 2) Generate content for that subject
+      const res = await fetch("/api/generate-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, subject: subjectData.subject, contentPrompt: subjectData.contentPrompt }),
       });
       if (!res.ok) throw new Error("Failed to generate");
       const data = (await res.json()) as {

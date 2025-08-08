@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getFirebase } from "@/lib/firebase";
-import { collection, addDoc, deleteDoc, doc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
+import { uploadDataUrlToStorage } from "@/services/images";
 
 type Post = {
   id: string;
@@ -57,18 +58,17 @@ export default function AdminPostsPage() {
   async function generateViaGPT() {
     setGenLoading(true);
     try {
-      // Fetch current settings to build inputs
+      // Fetch current settings topic only
       const settingsSnap = await getDocs(query(collection(db, "settings")));
       const settings = settingsSnap.docs.find((d) => d.id === "general")?.data() as
-        | { topic?: string; basePrompt?: string }
+        | { topic?: string }
         | undefined;
-      const topic = settings?.topic ?? "General";
-      const basePrompt = settings?.basePrompt ?? "Write a helpful, SEO-friendly article.";
+      const topic = settings?.topic ?? "Swimming";
 
       const res = await fetch("/api/generate-content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, basePrompt }),
+        body: JSON.stringify({ topic }),
       });
       if (!res.ok) throw new Error("Failed to generate");
       const data = (await res.json()) as {
@@ -76,18 +76,39 @@ export default function AdminPostsPage() {
         meta_description?: string;
         tags?: string[];
         content?: string;
+        imageText?: string;
       };
       const title = data.title ?? `AI Post ${Date.now()}`;
-      await addDoc(collection(db, "posts"), {
-        slug: `ai-${Date.now()}`,
+      const createdAt = Date.now();
+      const slug = `ai-${createdAt}`;
+      const ref = await addDoc(collection(db, "posts"), {
+        slug,
         title,
         metaDescription: data.meta_description ?? "",
         tags: data.tags ?? [],
         contentHtml: data.content ?? "",
-        images: [],
-        createdAt: Date.now(),
-        status: "published",
+        images: [] as string[],
+        createdAt,
+        status: "draft",
       });
+
+      // Create header image from imageText
+      const imgRes = await fetch("/api/createImage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageText: data.imageText || `${title} cover photo`, pathPrefix: `posts/${ref.id}` }),
+      });
+      let finalImages: string[] = [];
+      if (imgRes.ok) {
+        const imgJson = (await imgRes.json()) as { url?: string; dataUrl?: string };
+        if (imgJson.url) finalImages = [imgJson.url];
+        else if (imgJson.dataUrl) {
+          const uploaded = await uploadDataUrlToStorage(`posts/${ref.id}/cover.png`, imgJson.dataUrl);
+          finalImages = [uploaded];
+        }
+      }
+
+      await updateDoc(ref, { images: finalImages, status: "published" });
       load();
     } catch (e) {
       console.error(e);

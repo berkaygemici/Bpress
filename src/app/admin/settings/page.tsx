@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 export default function AdminSettingsPage() {
   const [blogTitle, setBlogTitle] = useState("");
   const [topic, setTopic] = useState("");
-  const [basePrompt, setBasePrompt] = useState("");
+  // Base prompt removed; generation derives its own prompt from Topic
   const [frequency, setFrequency] = useState<"daily" | "weekly">("daily");
   const [time, setTime] = useState("19:00");
   const [saving, setSaving] = useState(false);
@@ -21,13 +21,11 @@ export default function AdminSettingsPage() {
           | {
               blogTitle?: string;
               topic?: string;
-              basePrompt?: string;
               schedule?: { frequency?: "daily" | "weekly"; time?: string };
             }
           | undefined;
         setBlogTitle(data?.blogTitle ?? "");
         setTopic(data?.topic ?? "");
-        setBasePrompt(data?.basePrompt ?? "");
         setFrequency((data?.schedule?.frequency as "daily" | "weekly") ?? "daily");
         setTime(data?.schedule?.time ?? "19:00");
       } catch (e) {
@@ -44,7 +42,6 @@ export default function AdminSettingsPage() {
       const payload = {
         blogTitle,
         topic,
-        basePrompt,
         schedule: { frequency, time },
       };
       await setDoc(ref, payload, { merge: true });
@@ -77,15 +74,7 @@ export default function AdminSettingsPage() {
           placeholder="Swimming"
         />
       </label>
-      <label className="block">
-        <span className="text-sm text-gray-700">Base Prompt</span>
-        <textarea
-          className="mt-1 w-full rounded border px-3 py-2 min-h-[120px]"
-          value={basePrompt}
-          onChange={(e) => setBasePrompt(e.target.value)}
-          placeholder="You are an expert writer..."
-        />
-      </label>
+      {/* Base Prompt input removed – prompt is generated from Topic */}
       <div className="grid grid-cols-2 gap-4">
         <label className="block">
           <span className="text-sm text-gray-700">Frequency</span>

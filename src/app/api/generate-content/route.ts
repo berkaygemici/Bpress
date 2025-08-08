@@ -4,16 +4,15 @@ import { getOpenAIClient } from "@/services/openai";
 
 const Input = z.object({
   topic: z.string().min(1),
-  basePrompt: z.string().min(1),
 });
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { topic, basePrompt } = Input.parse(body);
+    const { topic } = Input.parse(body);
 
-    const system = "You are an expert SEO blog writer. Output strictly JSON with keys: title, meta_description, tags (array), content (HTML with semantic H1/H2/H3), image_prompts (array).";
-    const user = `${basePrompt}\n\nTopic: ${topic}`;
+    const system = "You are an expert swim coach and SEO editor. You will: (1) pick a marketable niche subtopic under the given Topic (not too broad, not ultra-niche), (2) write a high-quality article, (3) provide ONE image prompt describing a strong header/cover image for the article. Output STRICT JSON with keys ONLY: title, meta_description, tags (array), content (HTML with exactly one H1 and multiple H2/H3; short paragraphs and lists), imageText (string). No extra text.";
+    const user = `Topic: ${topic}\nAudience: adult swimmers (beginners to intermediate), triathletes, and masters.\nConstraints: 1200-1600 words; actionable drills/workouts; safety notes; avoid fluff; E-E-A-T; no medical claims.`;
 
     const openai = getOpenAIClient();
     const chat = await openai.chat.completions.create({

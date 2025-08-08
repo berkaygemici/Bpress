@@ -13,7 +13,6 @@ export type GeneratedPost = {
 export type BlogSettings = {
   blogTitle: string;
   topic: string;
-  basePrompt: string;
   schedule: {
     frequency: "daily" | "weekly";
     time: string; // HH:mm

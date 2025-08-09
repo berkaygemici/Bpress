@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getFirebase } from "@/lib/firebase";
-import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import { collection, getDocs, limit, query, where, orderBy } from "firebase/firestore";
 import sanitize from "sanitize-html";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import BlogSidebar from "@/components/BlogSidebar";
+import { fetchPublishedPostsViaREST } from "@/services/firestoreRest";
 
 type PostDoc = {
   title?: string;
@@ -24,15 +26,37 @@ export default function BlogPostPage() {
   const [post, setPost] = useState<PostDoc | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [sidebarPosts, setSidebarPosts] = useState<any[]>([]);
+  const [popularTags, setPopularTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (!slug) return;
     (async () => {
       try {
+        // Fetch main post
         const q = query(collection(db, "posts"), where("slug", "==", slug), limit(1));
         const snap = await getDocs(q);
         const data = snap.docs[0]?.data() as PostDoc | undefined;
         setPost(data ?? null);
+
+        // Fetch sidebar content
+        const allPosts = await fetchPublishedPostsViaREST(20);
+        setSidebarPosts(allPosts as any[]);
+
+        // Extract popular tags
+        const tagCounts: { [key: string]: number } = {};
+        allPosts.forEach((post: any) => {
+          if (Array.isArray(post.tags)) {
+            post.tags.forEach((tag: string) => {
+              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            });
+          }
+        });
+        
+        const sortedTags = Object.entries(tagCounts)
+          .sort(([,a], [,b]) => b - a)
+          .map(([tag]) => tag);
+        setPopularTags(sortedTags);
       } catch (error) {
         console.error("Failed to fetch post:", error);
       } finally {
@@ -197,58 +221,74 @@ export default function BlogPostPage() {
         </div>
       )}
 
-      {/* Article content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <article 
-          className="prose prose-xl max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-li:text-gray-800"
-          dangerouslySetInnerHTML={{ __html: safeHtml }}
-        />
+      {/* Main content area with sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Article content */}
+          <main className="lg:col-span-2">
+            <article 
+              className="prose prose-xl max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-li:text-gray-800"
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
+            />
 
-        {/* Share section */}
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Share this article</h3>
-              <p className="text-gray-600">Found this helpful? Share it with others!</p>
+            {/* Share section */}
+            <div className="mt-16 pt-8 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Share this article</h3>
+                  <p className="text-gray-600">Found this helpful? Share it with others!</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: post.title,
+                          text: post.metaDescription,
+                          url: window.location.href,
+                        });
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('Link copied to clipboard!');
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                    </svg>
+                    Share
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: post.title,
-                      text: post.metaDescription,
-                      url: window.location.href,
-                    });
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
-                  }
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+
+            {/* Back to blog CTA */}
+            <div className="mt-16 text-center">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-lg font-medium shadow-lg hover:shadow-xl"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
-                Share
-              </button>
+                Explore More Articles
+              </Link>
             </div>
-          </div>
-        </div>
+          </main>
 
-        {/* Back to blog CTA */}
-        <div className="mt-16 text-center">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-lg font-medium shadow-lg hover:shadow-xl"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            Explore More Articles
-          </Link>
+          {/* Sidebar */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-24">
+              <BlogSidebar 
+                featuredPosts={sidebarPosts}
+                popularTags={popularTags}
+                currentPostId={post?.title ? sidebarPosts.find(p => p.title === post.title)?.id : undefined}
+              />
+            </div>
+          </aside>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

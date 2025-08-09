@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tanstack/react-query": "^5.84.2",
     "date-fns": "^4.1.0",
     "firebase": "^12.1.0",

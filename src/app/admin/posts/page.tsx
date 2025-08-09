@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getFirebase } from "@/lib/firebase";
 import { collection, addDoc, deleteDoc, doc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
+import { slugify } from "@/utils/slug";
 import { uploadDataUrlToStorage } from "@/services/images";
 
 type Post = {
@@ -90,7 +91,7 @@ export default function AdminPostsPage() {
       };
       const title = data.title ?? `AI Post ${Date.now()}`;
       const createdAt = Date.now();
-      const slug = `ai-${createdAt}`;
+      const slug = slugify(title, 6);
       const ref = await addDoc(collection(db, "posts"), {
         slug,
         title,
@@ -136,23 +137,23 @@ export default function AdminPostsPage() {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Posts</h1>
-        <button
-          onClick={createPlaceholder}
-          disabled={creating}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-60"
-        >
-          {creating ? "Creating..." : "Create Placeholder Post"}
-        </button>
-      </div>
-      <div className="mt-3">
-        <button
-          onClick={generateViaGPT}
-          disabled={genLoading}
-          className="rounded border px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-60"
-        >
-          {genLoading ? "Generating..." : "Generate with GPT"}
-        </button>
+        <h1 className="text-2xl font-semibold tracking-tight">Posts</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={createPlaceholder}
+            disabled={creating}
+            className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-60"
+          >
+            {creating ? "Creating..." : "Create Placeholder"}
+          </button>
+          <button
+            onClick={generateViaGPT}
+            disabled={genLoading}
+            className="rounded-lg bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+          >
+            {genLoading ? "Generating..." : "Generate with GPT"}
+          </button>
+        </div>
       </div>
       <div className="mt-4">
         {loading ? (
@@ -160,24 +161,25 @@ export default function AdminPostsPage() {
         ) : posts.length === 0 ? (
           <p className="text-gray-600">No posts yet.</p>
         ) : (
-          <ul className="divide-y">
+          <div className="grid gap-4 md:grid-cols-2">
             {posts.map((p) => (
-              <li key={p.id} className="flex items-start justify-between gap-4 py-3">
-                <div>
-                  <a href={`/blog/${p.slug}`} className="font-medium underline">
-                    {p.title}
-                  </a>
-                  <p className="text-sm text-gray-600 line-clamp-2">{p.metaDescription}</p>
+              <div key={p.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <a href={`/blog/${p.slug}`} className="line-clamp-2 text-base font-semibold text-gray-900 hover:underline">
+                  {p.title}
+                </a>
+                <p className="mt-1 line-clamp-2 text-sm text-gray-700">{p.metaDescription}</p>
+                <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
+                  <span>{new Date(p.createdAt).toLocaleString()}</span>
+                  <button
+                    onClick={() => deletePost(p.id)}
+                    className="rounded-lg border border-gray-200 px-3 py-1 hover:bg-gray-50"
+                  >
+                    Delete
+                  </button>
                 </div>
-                <button
-                  onClick={() => deletePost(p.id)}
-                  className="rounded border px-3 py-1 text-sm hover:bg-gray-50"
-                >
-                  Delete
-                </button>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </main>

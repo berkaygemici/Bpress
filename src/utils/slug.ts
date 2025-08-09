@@ -1,10 +1,11 @@
-export function slugify(input: string): string {
-  return input
+export function slugify(input: string, maxWords = 6): string {
+  const words = input
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+    .split(/\s+/)
+    .slice(0, maxWords);
+  return words.join("-").replace(/-+/g, "-");
 }
 
 

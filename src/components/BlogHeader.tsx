@@ -4,12 +4,16 @@ type BlogHeaderProps = {
   title?: string;
   subtitle?: string;
   showAdminLink?: boolean;
+  showBadge?: boolean;
+  compact?: boolean;
 };
 
 export default function BlogHeader({ 
   title = "Latest Articles", 
-  subtitle = "Discover fresh AI-generated content and insights",
-  showAdminLink = true 
+  subtitle = "Discover fresh insights and quality content",
+  showAdminLink = false,
+  showBadge = false,
+  compact = false
 }: BlogHeaderProps) {
   return (
     <header className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-100">
@@ -19,25 +23,27 @@ export default function BlogHeader({
       <div className="absolute top-0 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${compact ? 'py-8 sm:py-10' : 'py-16 sm:py-20'}`}>
         <div className="text-center">
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            AI-Powered Blog
-          </div>
+          {showBadge && (
+            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              Personal Blog
+            </div>
+          )}
 
           {/* Main title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className={`font-bold text-gray-900 mb-6 ${compact ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-4xl sm:text-5xl lg:text-6xl'}`}>
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               {title}
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+          <p className={`text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed ${compact ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'}`}>
             {subtitle}
           </p>
 
@@ -49,7 +55,7 @@ export default function BlogHeader({
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white"></div>
               </div>
-              <span>Updated daily by AI</span>
+              <span>Updated regularly</span>
             </div>
             
             {showAdminLink && (

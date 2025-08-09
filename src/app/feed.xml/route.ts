@@ -19,9 +19,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <rss version="2.0">
     <channel>
-      <title>${process.env.NEXT_PUBLIC_SITE_URL ? new URL(baseUrl).hostname : "AI Blog"}</title>
+      <title>${process.env.NEXT_PUBLIC_SITE_URL ? new URL(baseUrl).hostname : "Blog"}</title>
       <link>${baseUrl}</link>
-      <description>AI-generated blog feed</description>
+      <description>Quality blog content and insights</description>
       ${items}
     </channel>
   </rss>`;

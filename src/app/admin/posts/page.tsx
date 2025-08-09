@@ -136,20 +136,23 @@ export default function AdminPostsPage() {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Posts</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Posts</h1>
+          <p className="text-lg text-gray-600 mt-2">Manage your blog content</p>
+        </div>
+        <div className="flex items-center gap-3">
           <button
             onClick={createPlaceholder}
             disabled={creating}
-            className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-60"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
           >
             {creating ? "Creating..." : "Create Placeholder"}
           </button>
           <button
             onClick={generateViaGPT}
             disabled={genLoading}
-            className="rounded-lg bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {genLoading ? "Generating..." : "Generate with GPT"}
           </button>
@@ -157,22 +160,27 @@ export default function AdminPostsPage() {
       </div>
       <div className="mt-4">
         {loading ? (
-          <p className="text-gray-600">Loading...</p>
+          <div className="text-center py-8">
+            <p className="text-lg text-gray-600">Loading posts...</p>
+          </div>
         ) : posts.length === 0 ? (
-          <p className="text-gray-600">No posts yet.</p>
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600">No posts yet.</p>
+            <p className="text-sm text-gray-500 mt-2">Create your first post using the buttons above.</p>
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             {posts.map((p) => (
-              <div key={p.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <a href={`/blog/${p.slug}`} className="line-clamp-2 text-base font-semibold text-gray-900 hover:underline">
+              <div key={p.id} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                <a href={`/blog/${p.slug}`} className="line-clamp-2 text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors">
                   {p.title}
                 </a>
-                <p className="mt-1 line-clamp-2 text-sm text-gray-700">{p.metaDescription}</p>
-                <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
-                  <span>{new Date(p.createdAt).toLocaleString()}</span>
+                <p className="mt-3 line-clamp-2 text-base text-gray-700 leading-relaxed">{p.metaDescription}</p>
+                <div className="mt-4 flex items-center justify-between text-sm">
+                  <span className="text-gray-600 font-medium">{new Date(p.createdAt).toLocaleString()}</span>
                   <button
                     onClick={() => deletePost(p.id)}
-                    className="rounded-lg border border-gray-200 px-3 py-1 hover:bg-gray-50"
+                    className="rounded-lg border border-red-200 px-3 py-1.5 text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors font-medium"
                   >
                     Delete
                   </button>

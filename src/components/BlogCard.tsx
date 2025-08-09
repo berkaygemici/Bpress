@@ -20,7 +20,7 @@ export default function BlogCard({
   createdAt, 
   tags = [], 
   image,
-  author = "AI Writer",
+  author = "Berkay Gemici",
   readTime = 5
 }: BlogCardProps) {
   const [imageError, setImageError] = useState(false);

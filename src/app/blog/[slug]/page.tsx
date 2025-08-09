@@ -147,9 +147,9 @@ export default function BlogPostPage() {
             </span>
             <div className="flex items-center gap-1">
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
-                AI
+                BG
               </div>
-              <span>AI Writer</span>
+              <span>Berkay Gemici</span>
             </div>
           </div>
 
@@ -184,15 +184,15 @@ export default function BlogPostPage() {
 
       {/* Featured image */}
       {Array.isArray(post.images) && post.images.length > 0 && !imageError && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
           <div className="relative">
             <img
               src={post.images[0] as string}
               alt={post.title || "Cover image"}
-              className="w-full aspect-video object-cover rounded-2xl shadow-xl"
+              className="w-full aspect-[3/2] object-cover rounded-xl shadow-lg"
               onError={() => setImageError(true)}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-xl" />
           </div>
         </div>
       )}
@@ -200,7 +200,7 @@ export default function BlogPostPage() {
       {/* Article content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <article 
-          className="prose prose-lg prose-gray max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg"
+          className="prose prose-xl max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-li:text-gray-800"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
 

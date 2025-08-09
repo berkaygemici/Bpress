@@ -62,7 +62,7 @@ export default function BlogIndexPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <BlogHeader />
+      <BlogHeader compact={true} />
       
       <SearchAndFilter
         onSearch={setSearchQuery}
@@ -74,7 +74,7 @@ export default function BlogIndexPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {loading ? (
-          <LoadingSpinner size="lg" message="Loading amazing content..." />
+          <LoadingSpinner size="lg" message="Loading articles..." />
         ) : filteredPosts.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
@@ -86,7 +86,7 @@ export default function BlogIndexPage() {
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               {searchQuery || selectedTag 
                 ? "Try adjusting your search or filter criteria to find what you're looking for."
-                : "Looks like we haven't published any articles yet. Check back soon!"
+                : "Looks like there are no articles published yet. Check back soon!"
               }
             </p>
             {(searchQuery || selectedTag) && (

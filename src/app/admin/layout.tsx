@@ -1,36 +1,25 @@
 "use client";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { getFirebaseAuth } from "@/lib/auth";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { Cog6ToothIcon, HomeIcon, NewspaperIcon, PowerIcon } from "@heroicons/react/24/outline";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const auth = getFirebaseAuth();
-  const [ready, setReady] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const { user, loading, isAdmin, signIn, signOut } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u ? { email: u.email || "" } : null);
-      setReady(true);
-    });
-    return () => unsub();
-  }, [auth]);
+  if (loading) return <div className="grid min-h-screen place-items-center bg-gray-100 text-gray-800">Loading…</div>;
 
-  if (!ready) return <div className="grid min-h-screen place-items-center bg-gray-100 text-gray-800">Loading…</div>;
-
-  if (!user) {
+  if (!user || !isAdmin) {
     async function login(e: React.FormEvent) {
       e.preventDefault();
       try {
         setError(null);
-        await signInWithEmailAndPassword(auth, email, password);
+        await signIn(email, password);
       } catch (e) {
-        setError("Login failed");
+        setError("Login failed - Admin access required");
       }
     }
     return (
@@ -85,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </nav>
         <button
-          onClick={() => signOut(auth)}
+          onClick={signOut}
           className="mt-6 flex w-full items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 font-medium hover:bg-red-50 hover:border-red-200 hover:text-red-700 transition-all"
         >
           Sign out <PowerIcon className="h-4 w-4" />

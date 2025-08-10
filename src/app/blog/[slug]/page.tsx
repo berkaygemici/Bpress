@@ -7,9 +7,11 @@ import { collection, getDocs, limit, query, where, orderBy } from "firebase/fire
 import sanitize from "sanitize-html";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import BlogSidebar from "@/components/BlogSidebar";
+import CommentsSection from "@/components/CommentsSection";
 import { fetchPublishedPostsViaREST } from "@/services/firestoreRest";
 
 type PostDoc = {
+  id?: string;
   title?: string;
   contentHtml?: string;
   metaDescription?: string;
@@ -24,6 +26,7 @@ export default function BlogPostPage() {
   const slug = params?.slug;
   const { db } = getFirebase();
   const [post, setPost] = useState<PostDoc | null>(null);
+  const [postId, setPostId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [sidebarPosts, setSidebarPosts] = useState<any[]>([]);
@@ -36,8 +39,10 @@ export default function BlogPostPage() {
         // Fetch main post
         const q = query(collection(db, "posts"), where("slug", "==", slug), limit(1));
         const snap = await getDocs(q);
-        const data = snap.docs[0]?.data() as PostDoc | undefined;
+        const doc = snap.docs[0];
+        const data = doc?.data() as PostDoc | undefined;
         setPost(data ?? null);
+        setPostId(doc?.id ?? null);
 
         // Fetch sidebar content
         const allPosts = await fetchPublishedPostsViaREST(20);
@@ -262,19 +267,6 @@ export default function BlogPostPage() {
                 </div>
               </div>
             </div>
-
-            {/* Back to blog CTA */}
-            <div className="mt-16 text-center">
-              <Link
-                href="/blog"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-lg font-medium shadow-lg hover:shadow-xl"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-                Explore More Articles
-              </Link>
-            </div>
           </main>
 
           {/* Sidebar */}
@@ -287,6 +279,26 @@ export default function BlogPostPage() {
               />
             </div>
           </aside>
+        </div>
+
+        {/* Comments Section - Full Width */}
+        {postId && (
+          <div className="mt-16 border-t border-gray-200">
+            <CommentsSection postId={postId} />
+          </div>
+        )}
+
+        {/* Back to blog CTA */}
+        <div className="mt-16 text-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-lg font-medium shadow-lg hover:shadow-xl"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            Explore More Articles
+          </Link>
         </div>
       </div>
     </div>

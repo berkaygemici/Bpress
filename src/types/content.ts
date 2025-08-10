@@ -19,4 +19,28 @@ export type BlogSettings = {
   };
 };
 
+export type UserRole = "admin" | "user";
+
+export type User = {
+  uid: string;
+  email: string;
+  displayName?: string;
+  role: UserRole;
+  createdAt: number;
+  isActive: boolean;
+};
+
+export type Comment = {
+  id: string;
+  postId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  content: string;
+  createdAt: number;
+  updatedAt?: number;
+  isApproved: boolean;
+  parentId?: string; // for reply functionality
+};
+
 

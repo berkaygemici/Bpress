@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AuthButton from "./AuthButton";
 
 type BlogHeaderProps = {
   title?: string;
@@ -17,6 +18,28 @@ export default function BlogHeader({
 }: BlogHeaderProps) {
   return (
     <header className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-100">
+      {/* Navigation */}
+      <nav className="relative bg-white/80 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-600 to-purple-600"></div>
+              <span className="text-xl font-bold text-gray-900">Blog</span>
+            </Link>
+            
+            <div className="flex items-center space-x-6">
+              <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium">
+                All Posts
+              </Link>
+              <Link href="/tags" className="text-gray-700 hover:text-blue-600 font-medium">
+                Tags
+              </Link>
+              <AuthButton />
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>

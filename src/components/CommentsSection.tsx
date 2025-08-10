@@ -4,6 +4,8 @@ import { Comment } from "@/types/content";
 import CommentForm from "./CommentForm";
 import CommentDisplay from "./CommentDisplay";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
+import { getFirebase } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 type CommentsSectionProps = {
   postId: string;
@@ -13,6 +15,7 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
 
   const fetchComments = useCallback(async () => {
     try {
@@ -34,8 +37,21 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
   }, [postId]);
 
   useEffect(() => {
+    checkCommentsEnabled();
     fetchComments();
   }, [fetchComments]);
+
+  const checkCommentsEnabled = async () => {
+    try {
+      const { db } = getFirebase();
+      const ref = doc(db, "settings", "general");
+      const snap = await getDoc(ref);
+      const data = snap.data() as { commentsEnabled?: boolean } | undefined;
+      setCommentsEnabled(data?.commentsEnabled ?? true);
+    } catch (error) {
+      console.error("Error checking comments settings:", error);
+    }
+  };
 
   // Organize comments into threads
   const organizeComments = (comments: Comment[]) => {
@@ -80,6 +96,11 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
       )}
     </div>
   );
+
+  // If comments are disabled, don't render anything
+  if (!commentsEnabled) {
+    return null;
+  }
 
   if (loading) {
     return (

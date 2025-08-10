@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { Cog6ToothIcon, HomeIcon, NewspaperIcon, PowerIcon } from "@heroicons/react/24/outline";
+import { Cog6ToothIcon, HomeIcon, NewspaperIcon, PowerIcon, PaintBrushIcon, ClockIcon } from "@heroicons/react/24/outline";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, isAdmin, signIn, signOut } = useAuth();
@@ -70,7 +70,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <NewspaperIcon className="h-5 w-5 text-gray-600" /> Posts
           </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-100 text-gray-900 font-medium transition-colors">
-            <Cog6ToothIcon className="h-5 w-5 text-gray-600" /> Settings
+            <Cog6ToothIcon className="h-5 w-5 text-gray-600" /> General Settings
+          </Link>
+          <Link href="/admin/appearance" className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-100 text-gray-900 font-medium transition-colors">
+            <PaintBrushIcon className="h-5 w-5 text-gray-600" /> Appearance
+          </Link>
+          <Link href="/admin/schedule" className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-100 text-gray-900 font-medium transition-colors">
+            <ClockIcon className="h-5 w-5 text-gray-600" /> Schedule
           </Link>
         </nav>
         <button

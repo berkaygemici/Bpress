@@ -5,10 +5,14 @@ export default function AdminHome() {
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Admin</h1>
         <p className="text-sm text-gray-700">Manage your blog configuration and content.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <a href="/admin/settings" className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
           <h2 className="text-base font-semibold text-gray-900">General Settings</h2>
           <p className="mt-1 text-sm text-gray-700">Blog title, topic, and schedule.</p>
+        </a>
+        <a href="/admin/appearance" className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+          <h2 className="text-base font-semibold text-gray-900">Appearance</h2>
+          <p className="mt-1 text-sm text-gray-700">Comments, footer, and social media links.</p>
         </a>
         <a href="/admin/schedule" className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
           <h2 className="text-base font-semibold text-gray-900">Scheduling</h2>

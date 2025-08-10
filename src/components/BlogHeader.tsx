@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import AuthButton from "./AuthButton";
+import { useBrandingSettings } from "@/hooks/useBrandingSettings";
 
 type BlogHeaderProps = {
   title?: string;
@@ -16,6 +18,7 @@ export default function BlogHeader({
   showBadge = false,
   compact = false
 }: BlogHeaderProps) {
+  const { settings: brandingSettings, loading: brandingLoading } = useBrandingSettings();
   return (
     <header className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-100">
       {/* Navigation */}
@@ -23,8 +26,20 @@ export default function BlogHeader({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-600 to-purple-600"></div>
-              <span className="text-xl font-bold text-gray-900">Blog</span>
+              {brandingSettings.logoUrl ? (
+                <Image 
+                  src={brandingSettings.logoUrl} 
+                  alt={brandingSettings.websiteName} 
+                  width={48}
+                  height={32}
+                  className="h-8 w-auto max-w-12 object-contain"
+                />
+              ) : (
+                <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-600 to-purple-600"></div>
+              )}
+              <span className="text-xl font-bold text-gray-900">
+                {brandingLoading ? "Blog" : brandingSettings.websiteName}
+              </span>
             </Link>
             
             <div className="flex items-center space-x-6">

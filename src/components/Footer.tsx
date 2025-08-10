@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getFirebase } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useBrandingSettings } from "@/hooks/useBrandingSettings";
 
 type SocialLink = {
   platform: 'linkedin' | 'twitter' | 'instagram';
@@ -17,6 +19,7 @@ type FooterSettings = {
 };
 
 export default function Footer() {
+  const { settings: brandingSettings, loading: brandingLoading } = useBrandingSettings();
   const [settings, setSettings] = useState<FooterSettings>({
     footerText: "© 2024 Blog. All rights reserved.",
     socialLinks: [],
@@ -80,8 +83,20 @@ export default function Footer() {
           {/* Left side - Logo and copyright */}
           <div className="flex flex-col items-center md:items-start space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-600 to-purple-600"></div>
-              <span className="text-xl font-bold text-gray-900">Blog</span>
+              {brandingSettings.logoUrl ? (
+                <Image 
+                  src={brandingSettings.logoUrl} 
+                  alt={brandingSettings.websiteName} 
+                  width={48}
+                  height={32}
+                  className="h-8 w-auto max-w-12 object-contain"
+                />
+              ) : (
+                <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-600 to-purple-600"></div>
+              )}
+              <span className="text-xl font-bold text-gray-900">
+                {brandingLoading ? "Blog" : brandingSettings.websiteName}
+              </span>
             </Link>
             <p className="text-gray-600 text-sm text-center md:text-left">
               {settings.footerText}
@@ -122,15 +137,12 @@ export default function Footer() {
 
         {/* Bottom section */}
         <div className="mt-8 pt-8 border-t border-gray-200">
-          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <div className="flex flex-wrap justify-center gap-4 md:justify-start">
+          <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-y-0">
+            <div className="flex flex-wrap justify-center gap-4">
               <Link href="/admin" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
                 Admin
               </Link>
             </div>
-            <p className="text-xs text-gray-500">
-              Built with Next.js and Firebase
-            </p>
           </div>
         </div>
       </div>
